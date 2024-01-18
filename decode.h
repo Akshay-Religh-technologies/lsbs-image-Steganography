@@ -27,6 +27,7 @@ typedef struct _DecodeInfo
      char *stego_image_filename;
      FILE *fptr_stego_image;
      
+     char extn_output_file[50];
      
 } DecodeInfo;
 
@@ -36,7 +37,7 @@ typedef struct _DecodeInfo
 
 //Read and validate the arguments (to check if the encoded image file is having .bmp extension or not)
 
-Status read_and_validate_arguments_for_decoding(char *argv[], DecodeInfo *decInfo);
+Status read_and_validate_arguments_for_decoding(int argc,char *argv[], DecodeInfo *decInfo);
 
 //Open image file thats now stored in stego_image_filname
 

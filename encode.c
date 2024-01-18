@@ -138,7 +138,7 @@ Status encode_magic_string(char *magic_string, EncodeInfo *encInfo)
 
 Status encode_data_to_image(char *data, int size, FILE *fptr_src_image, FILE *fptr_stego_image)
 {
-     char image_buff[8];
+     char image_buff[MAX_IMAGE_BUF_SIZE];
      //printf("magic string size -> %d\n",size);
      for(int i=0;i<size;i++)
      {
@@ -158,7 +158,7 @@ Status encode_byte_to_lsb(char data,char *image_buffer)
 
      //for (int i = 0;i< 8;i++)
      //  printf("first -> 0%hhx\n",image_buffer[i]);
-     for(int i=0;i<8;i++)
+     for(int i=0;i<MAX_IMAGE_BUF_SIZE;i++)
      {
 	  image_buffer[i]=((image_buffer[i]&0xFE) | ((data>>i)&1));
 	  //image_buffer[i]=(((data&(1<<(7-i)))>>(7-i)) | image_buffer[i]&~1);

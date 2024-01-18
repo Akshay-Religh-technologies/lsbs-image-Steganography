@@ -70,6 +70,7 @@ Status open_files_for_decoding(DecodeInfo *decInfo)
 	  else
 	  {
 	       printf("%s File is opened\n",decInfo->stego_image_filename);
+	       printf("Done...!!!\n");
 	       return e_success;
 	  }
      }
@@ -84,6 +85,8 @@ Status open_files_for_decoding(DecodeInfo *decInfo)
 	else
 	{
 		printf("INFO : Opening %s\n",decInfo->output_filename);
+	        printf("Done...!!!\n");
+
 	}
 
      }
@@ -131,7 +134,7 @@ char  decode_bytes_from_lsb(char *buff)
 {
 
      char ch=0;   
-     for(int i=0;i<8;i++)
+     for(int i=0;i<MAX_IMAGE_BUF_SIZE;i++)
      {
 	  ch = ((( buff[i] & 1 )<<i)  | ch );
 
@@ -201,10 +204,10 @@ Status decode_secret_file_data_size(DecodeInfo *decInfo)
 Status decode_secret_file_data(DecodeInfo *decInfo,int size)
 {
      int i;  
-     char arr[8];
+     char arr[MAX_IMAGE_BUF_SIZE];
      for(i=0;i<size;i++)
      {
-	  fread(arr,8,1,decInfo->fptr_stego_image);
+	  fread(arr,MAX_IMAGE_BUF_SIZE,1,decInfo->fptr_stego_image);
 	  decInfo->data[i]= decode_bytes_from_lsb(arr);	
      }	
      decInfo->data[i]='\0';

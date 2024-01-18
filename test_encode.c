@@ -63,7 +63,12 @@ int main(int argc,char *argv[])
 	       }
 
 
-	  } 
+	  }
+	  else
+	  {
+	  	printf("Invalid arguments Please pass atleast 4 arguments \n");
+	  }
+
      }
      else if (op_type == e_decode)
      {
@@ -76,7 +81,7 @@ int main(int argc,char *argv[])
 		printf("\n");
 		sleep(1);
 		printf("Started Validating.......\n");
-		read_and_validate_arguments_for_decoding(argv,&decInfo);
+		read_and_validate_arguments_for_decoding(argc,argv,&decInfo);
 		sleep(1);
 		do_decoding(&decInfo);
 		sleep(1);

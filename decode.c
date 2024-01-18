@@ -11,7 +11,7 @@
 
 //check if the extension of the encoded file is .bmp or not 
 
-Status	read_and_validate_arguments_for_decoding(char *argv[],DecodeInfo *decInfo)
+Status	read_and_validate_arguments_for_decoding(int argc , char *argv[],DecodeInfo *decInfo)
 {
      if( strcmp(strstr(argv[2],"."),".bmp") == 0)
      {
@@ -19,23 +19,25 @@ Status	read_and_validate_arguments_for_decoding(char *argv[],DecodeInfo *decInfo
 	  // Store the FILE NAME in a structure member 'stego_image_fname' (decode.h line--> ) if file passed is of .bmp extension.
 
 	  decInfo->stego_image_filename=argv[2];
-	  char extension[50];
+	  char extension[30];
 
-	  if(argv[3]!=NULL)
+	  if (argc> 3)
 	  {
-	       // Store the FILE NAME in a structure member 'output_fname' (decode.h line--> ) if file name is passed.
-	       strcpy(decInfo->output_filename , argv[3]);
-	       strcpy(extension,strstr(argv[3],"."));
-	       printf("extension stored is %s\n",extension);
-	       printf("The output file is created by the name : %s\n",decInfo->output_filename);
-	       return e_success;
-	  } 
+	       strncpy(decInfo->extn_output_file, strstr(argv[3], "."), 4);
+	       if ((strncmp(decInfo->extn_output_file, ".txt", 4) == 0) || (strncmp(decInfo->extn_output_file, ".c", 2) == 0) || (strncmp(decInfo->extn_output_file, ".sh", 3) == 0))
+	       {
+		    strcpy(decInfo->output_filename,argv[3]);
+	       }
+	       else
+	       {
+		    fprintf(stderr,"Error: Output file %s format should be .txt or .c or .sh\n", argv[3]);
+		    return e_failure;
+	       }
+	  }
 	  else
 	  {
-	       strcpy(decInfo->output_filename,"output.txt");
-	       printf("The output file is created by the name : %s\n",decInfo->output_filename);
-
-	       return e_success;
+	       strcpy(decInfo->output_filename,"Nothing");
+	       //  printf("Output file has been not mentioned so storing null99999\n");
 	  }
      }
      else
@@ -53,18 +55,37 @@ Status open_files_for_decoding(DecodeInfo *decInfo)
 
 {
 
-     decInfo->fptr_stego_image=fopen(decInfo->stego_image_filename,"r");
-     decInfo->fptr_output_filename=fopen(decInfo->output_filename,"w");
-     if(decInfo->fptr_stego_image==NULL)
-     {
+     static int var=0;
+     if(var==0)
+     {	  
+	  ++var;
+	  decInfo->fptr_stego_image=fopen(decInfo->stego_image_filename,"r");
 
-	  printf("%s File not opened\n",decInfo->stego_image_filename);
-	  return e_failure;
+	  if(decInfo->fptr_stego_image==NULL)
+	  {
+
+	       printf("%s File not opened\n",decInfo->stego_image_filename);
+	       return e_failure;
+	  }
+	  else
+	  {
+	       printf("%s File is opened\n",decInfo->stego_image_filename);
+	       return e_success;
+	  }
      }
      else
      {
-	  printf("%s File is opened\n",decInfo->stego_image_filename);
-	  return e_success;
+	decInfo->fptr_output_filename=fopen(decInfo->output_filename,"w");
+
+	if((strcmp(decInfo->output_filename,"Nothing")==0))  	 
+	{
+				printf("Error : Output File not Created\n");
+	} 
+	else
+	{
+		printf("INFO : Opening %s\n",decInfo->output_filename);
+	}
+
      }
 }
 
@@ -202,6 +223,7 @@ Status do_decoding(DecodeInfo *decInfo)
      if(decode_magic_string(decInfo)==e_success)
      {
 	  // printf("Lets continue\n");
+
 	  sleep(1);
 	  printf("INFO -> Decoding the Magic String\n");
 	  printf("Done... !!!\n");
@@ -212,52 +234,70 @@ Status do_decoding(DecodeInfo *decInfo)
 	       printf("INFO -> Decoding the Secret File Extension Size\n");
 	       printf("Done... !!!\n");
 
-	       if((decode_secret_file_extension(decInfo,decInfo->extension_size)==e_success))
+	       if ((strcmp(decInfo->output_filename,"Nothing")==0))
+	       {
+
+		    if ((decInfo->extension_size==4))
+		    {
+			 strcpy(decInfo->output_filename,"default.txt");
+			 printf("INFO: Output file not mentioned. Creating %s as default\n", "default.txt");
+		         printf("Done... !!!\n");
+
+		    }
+		    else if ((decInfo->extension_size==3))
+		    {
+			 strcpy(decInfo->output_filename,"default.sh");
+			 printf("INFO: Output file not mentioned. Creating %s as default\n", "default.sh");
+		         printf("Done... !!!\n");
+
+		    }
+		    else if ((decInfo->extension_size==2))
+		    {
+			 strcpy(decInfo->output_filename,"defualt.c");
+			 printf("INFO: Output file not mentioned. Creating %s as default\n", "default.c");
+		         printf("Done... !!!\n");
+
+		    }
+     		    open_files_for_decoding(decInfo);		    
+	       }
+
+	      
+	       if((decode_secret_file_data_size(decInfo))==e_success)
 	       {
 		    sleep(1);
-		    printf("INFO -> Decoding the Secret File Extension\n");
+		    printf("INFO -> Decoding the Secret File Size\n");
 		    printf("Done... !!!\n");
 
-		    if((decode_secret_file_data_size(decInfo))==e_success)
+		    if((decode_secret_file_data(decInfo,decInfo->data_size))==e_success)
 		    {
 			 sleep(1);
-			 printf("INFO -> Decoding the Secret File Size\n");
+			 printf("INFO -> Decoding the Secret File Data\n");
 			 printf("Done... !!!\n");
-
-			 if((decode_secret_file_data(decInfo,decInfo->data_size))==e_success)
-			 {
-			      sleep(1);
-			      printf("INFO -> Decoding the Secret File Data\n");
-			      printf("Done... !!!\n");
-			      printf("INFO -> Secret Data Available in %s File\n",decInfo->output_filename);
-			 }
-			 else
-			 {
-			      printf("ERROR : INFO -> Error In Decoding the Secret File Data\n");
-
-			 }
+			 printf("INFO -> Secret Data Available in %s File\n",decInfo->output_filename);
 		    }
 		    else
 		    {
-			 printf("ERROR : INFO -> Error In Decoding Secret File Data Size\n" );
+			 printf("ERROR : INFO -> Error In Decoding the Secret File Data\n");
+
 		    }
 	       }
 	       else
 	       {
-		    printf("ERROR : INFO -> Error In Decoding the Secret File Extension\n");
-
+		    printf("ERROR : INFO -> Error In Decoding Secret File Data Size\n" );
 	       }
 	  }
 	  else
 	  {
-	       printf("ERROR : INFO -> Error In Decoding Secret File Extension Size\n");
-	  }		  
+	       printf("ERROR : INFO -> Error In Decoding the Secret File Extension Size\n");
+
+	  }
      }
      else
      {
-	  printf("Magic string errror\n");
+	  printf("ERROR : INFO -> Data Not Encoded\n");
      }
 
      return e_success;
 }
+
 

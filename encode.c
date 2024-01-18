@@ -436,12 +436,12 @@ Status do_encoding(EncodeInfo *encInfo)
      {
 	  printf("INFO : ERROR -> Capacity of file <%s> not enough\n",encInfo->src_image_fname);
      }
-
-     /*	else
-	{
-	printf("INFO : ERROR -> File can't be opened\n");
-	}
-      */	
+/*
+     else
+     {
+	  printf("INFO : ERROR -> File can't be opened\n");
+     }
+*/
 
 }
 
